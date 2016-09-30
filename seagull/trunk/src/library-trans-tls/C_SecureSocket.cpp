@@ -275,7 +275,15 @@ int C_SecureSocketClient::_open (T_pOpenStatus P_status,
   L_ret = C_SocketClient::_open(P_status, P_buffer_size, P_protocol);
 
   if (L_ret == 0) {
+    if (m_state == E_SOCKET_STATE_INPROGESS) {
+    L_ret = _wait_for_write ();
+    if (L_ret != 0) {
+      return L_ret;
+    }
+  }
     L_ret = _secure_mode () ;
+  } else {
+    SOCKET_ERROR(1, "C_SecureSocketClient:: _open failed");
   }
 
   return (L_ret);
@@ -349,5 +357,40 @@ C_SecureSocketListen::C_SecureSocketListen
 }
 
 
+int C_SecureSocketClient::_wait_for_write() {
+  SOCKET_DEBUG(1, "C_SocketClient::_waitForWrite");
+
+  fd_set write_fds;
+  FD_ZERO(&write_fds);
+  FD_SET(m_socket_id, &write_fds);
+
+  struct timeval tv;
+  tv.tv_sec = 1;
+  tv.tv_usec = 0;
+
+  int L_rc = call_select(m_socket_id + 1, NULL, &write_fds, NULL, &tv);
+  if (L_rc < 0) {
+    SOCKET_ERROR(0, "Failed on select [" << strerror(errno) << "]");
+    return L_rc;
+  } else if (L_rc == 0) {
+    SOCKET_ERROR(0, "Timeout waiting for writing to socket");
+    return -1;
+  }
+
+  int res;
+  socklen_t result_len = sizeof(res);
+  if (call_getsockopt(m_socket_id, SOL_SOCKET, SO_ERROR, &res, &result_len) < 0) {
+    SOCKET_ERROR(0, "Failed on getsockopt [" << strerror(errno) << "]");
+    return res;
+  }
+
+  if (res != 0) {
+    SOCKET_ERROR(0, "Socket is faulty [" << strerror(errno) << "]");
+    return res;
+  }
+
+  //all is fine
+  return 0;
+}
 
 

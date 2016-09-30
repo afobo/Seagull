@@ -107,7 +107,8 @@ public:
                                           fd_set *P_wSet, 
                                           C_TransportEvent *P_event) ;
   virtual int _call_write(unsigned char *P_buf, size_t P_size);
-  
+
+  int _wait_for_write();
 } ;
 
 #endif // _C_SECURE_SOCKET_H

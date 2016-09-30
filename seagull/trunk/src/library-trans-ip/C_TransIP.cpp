@@ -181,6 +181,9 @@ int C_TransIP::open (int   P_channel_id,
 	L_ret = L_socket -> get_id () ;
 	m_socket_map.insert (T_SocketMap::value_type(L_ret,L_socket));
 	if (L_ret > m_max_fd) { m_max_fd = L_ret;  } ;
+      } else {
+        GEN_ERROR(0, "C_TransIP:: Failed to open socket");
+        L_ret = -1;
       }
 
     } else {

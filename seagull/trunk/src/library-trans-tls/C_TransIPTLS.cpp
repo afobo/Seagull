@@ -383,6 +383,7 @@ C_Socket* C_TransIPTLS::open (int              P_channel_id,
       } else {
 	DELETE_VAR(L_Socket) ;
 	*P_status = E_OPEN_FAILED ;
+	GEN_ERROR(1, "C_TransIPTLS::open, socket failed to create");
       }
     }
       

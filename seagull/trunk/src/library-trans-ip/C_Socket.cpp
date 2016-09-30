@@ -679,6 +679,8 @@ int C_SocketClient::_open(T_pOpenStatus  P_status,
         *P_status                 = E_OPEN_OK ;
        }
     }
+  } else {
+    SOCKET_ERROR(1, "Failed to open socket [" << L_rc << "][" << strerror(errno) << "]");
   }
   return (L_rc);
 }

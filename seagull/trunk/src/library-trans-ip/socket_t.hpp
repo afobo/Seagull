@@ -88,6 +88,7 @@ typedef struct sockaddr_storage T_SockAddrStorage ;
 #define call_connect    connect
 #define call_fcntl      fcntl
 #define call_recvmsg    recvmsg
+#define call_select     select
 // UDP
 #define call_recvfrom   recvfrom
 #define call_sendto     sendto
