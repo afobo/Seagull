@@ -1523,6 +1523,7 @@ int C_ProtocolBinary::get_header_body_optional_from_xml (C_XmlData *P_def) {
   char                     *L_value_cond, *L_value_field, *L_value_mask ;
   int                       L_ret = 0 ;
   unsigned long             L_size    ;
+  T_CondType                L_type;
   unsigned long             L_mask ;
   int                       L_field_id ;
   T_pCondPresence           L_condPresence = NULL ;
@@ -1595,7 +1596,11 @@ int C_ProtocolBinary::get_header_body_optional_from_xml (C_XmlData *P_def) {
 	L_ret = -1 ;
 	break ;
       }
-      if (strcmp(L_value_cond, (char*)"mask") != 0) {
+      if (strcmp(L_value_cond, (char*)"mask") == 0) {
+        L_type = E_COND_MASK;
+      } else if (strcmp(L_value_cond, (char*)"equal") == 0) {
+        L_type = E_COND_EQUAL;
+      } else {
 	GEN_ERROR(E_GEN_FATAL_ERROR, "Unsupported fielddef condition value ["
 	      << L_value_cond << "]");
 	L_ret = -1 ;
@@ -1639,6 +1644,7 @@ int C_ProtocolBinary::get_header_body_optional_from_xml (C_XmlData *P_def) {
       if (L_ret != -1) {
 
 	ALLOC_VAR(L_condPresence, T_pCondPresence, sizeof(T_CondPresence)) ;
+	L_condPresence->m_type = L_type;
 	L_condPresence->m_mask = L_mask ;
 	L_condPresence->m_f_id = L_field_id ;
  	
@@ -4700,9 +4706,13 @@ void C_ProtocolBinary::set_body_value (T_pBodyValue P_dest, T_pValueData P_orig)
 
 bool C_ProtocolBinary::check_presence_needed (T_pCondPresence P_condition,
 					unsigned long  *P_values) {
-  bool L_ret ;
+  bool L_ret = false;
 
-  L_ret = (P_values[P_condition->m_f_id] & (P_condition->m_mask)) ;
+  if (P_condition->m_type == E_COND_MASK) {
+    L_ret = (P_values[P_condition->m_f_id] & (P_condition->m_mask));
+  } else if (P_condition->m_type == E_COND_EQUAL) {
+    L_ret = (P_values[P_condition->m_f_id] == (P_condition->m_mask));
+  }
 
   return (L_ret);
 }

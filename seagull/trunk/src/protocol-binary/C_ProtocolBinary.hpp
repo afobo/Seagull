@@ -46,7 +46,13 @@ public:
     E_MSG_ID_BODY
   } T_MsgIdType, *T_pMsgIdType ;
 
+  typedef enum _enum_cond_type {
+    E_COND_MASK = 0,
+    E_COND_EQUAL
+  } T_CondType, *T_pCondType;
+
   typedef struct _cond_value {
+    T_CondType    m_type ;
     unsigned long m_mask ;
     int           m_f_id ;
   } T_CondPresence, *T_pCondPresence ;
